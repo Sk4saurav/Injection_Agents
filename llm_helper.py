@@ -2,7 +2,7 @@
 import os
 import json 
 from openai import OpenAI
-from Config import HF_API_KEY, HF_MODEL_ID, HF_INFERENCE_URL
+from config import HF_API_KEY, HF_MODEL_ID, HF_INFERENCE_URL
 
 # Use HF Token with OpenAI Client
 # Note: You must use a model ID that supports the OpenAI chat format

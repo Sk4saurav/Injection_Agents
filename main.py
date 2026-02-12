@@ -4,7 +4,7 @@ import datetime
 import os
 from typing import List, Dict, Any
 
-import Config
+import config
 import llm_helper
 import Detectors
 import utils
@@ -42,7 +42,7 @@ def run_master_agent():
     print(f"[*] Loading targets from config...")
     
     targets_to_run = []
-    for target in Config.TARGETS:
+    for target in config.TARGETS:
         # Mandatory Authorization Check
         if not target.get("authorized", False):
             print(f"[!] BLOCKED: Target '{target['name']}' is NOT marked as authorized.")

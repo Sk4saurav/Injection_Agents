@@ -3,7 +3,7 @@ import json
 import llm_helper
 import Tool_Wrappers
 import utils
-from Config import SAFE_MODE
+from config import SAFE_MODE
 
 
 # ========================

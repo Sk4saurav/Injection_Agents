@@ -5,7 +5,7 @@ import json
 from typing import Optional, Dict
 import os
 
-from Config import (
+from config import (
     SQLMAP_CMD, COMMIX_SCRIPT, NOSQLI_CMD,
     SAFE_MODE, MAX_COMMIX_TIME, MAX_NOSQLI_TIME, REQUEST_TIMEOUT
 )
