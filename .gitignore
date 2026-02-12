@@ -1,0 +1,27 @@
+# 1. Secrets (Security Critical)
+# This tells Git to ignore your .env file which contains your API key.
+.env
+
+# 2. Python Cache (Keeps repo clean)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 3. OS Files (Keeps repo clean on different systems)
+.DS_Store
+.DS_Store?
+Thumbs.db
+*.swp
+*.swo
+
+# 4. IDE / Editor Files
+.vscode/
+.idea/
+*.sublime-project
+*~
+
+# 5. Project Files (Optional but recommended)
+# Ignore the raw evidence logs to prevent accidentally committing large/buggy files
+evidence/
