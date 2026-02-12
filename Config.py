@@ -1,12 +1,14 @@
 # config.py
 import os
+from dotenv import load_dotenv
+load_dotenv() 
 import config 
 import Tool_Wrappers
 # --- Hugging Face Settings (Replacing OpenAI) ---
 HF_API_KEY = os.getenv("HF_API_KEY") # <--- Paste your token here
 # You can also specify a specific model if you want
-HF_MODEL_ID = "mistralai/Mistral-7b-Instruct-v0.2" # Example: Fast, smart, good for reasoning
-# HF_INFERENCE_URL = "https://api-inference.huggingface.co" # Default HF endpoint
+HF_MODEL_ID = os.getenv("HF_MODEL_ID") # Example: Fast, smart, good for reasoning
+HF_INFERENCE_URL = os.getenv("HF_INFERENCE_URL")
 
 # --- Tool Paths (Unchanged) ---
 SQLMAP_CMD = "sqlmap"
