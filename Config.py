@@ -1,6 +1,7 @@
 # config.py
 import os
-
+import Config
+import Tool_Wrappers
 # --- Hugging Face Settings (Replacing OpenAI) ---
 HF_API_KEY = os.getenv("HF_API_KEY") # <--- Paste your token here
 # You can also specify a specific model if you want

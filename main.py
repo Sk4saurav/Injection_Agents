@@ -4,9 +4,9 @@ import datetime
 import os
 from typing import List, Dict, Any
 
-import config
+import Config
 import llm_helper
-import detectors
+import Detectors
 import utils
 
 
@@ -42,7 +42,7 @@ def run_master_agent():
     print(f"[*] Loading targets from config...")
     
     targets_to_run = []
-    for target in config.TARGETS:
+    for target in Config.TARGETS:
         # Mandatory Authorization Check
         if not target.get("authorized", False):
             print(f"[!] BLOCKED: Target '{target['name']}' is NOT marked as authorized.")
@@ -67,14 +67,14 @@ def run_master_agent():
 
         # Pass evidence_dir to detectors
         if ttype == "SQLi":
-            result = detectors.detect_sqli(target)
+            result = Detectors.detect_sqli(target)
             all_results.append(result)
         elif ttype == "CmdInj":
             # FIX: Use the merged detect_cmdinj function
-            result = detectors.detect_cmdinj(target, evidence_dir)
+            result = Detectors.detect_cmdinj(target, evidence_dir)
             all_results.append(result)
         elif ttype == "NoSQLi":
-            result = detectors.detect_nosqli(target, evidence_dir)
+            result = Detectors.detect_nosqli(target, evidence_dir)
             all_results.append(result)
         else:
             print(f"[!] Unsupported target type: {ttype}")

@@ -1,9 +1,9 @@
 # detectors.py
 import json
 import llm_helper
-import tool_wrappers
+import Tool_Wrappers
 import utils
-from config import SAFE_MODE
+from Config import SAFE_MODE
 
 
 # ========================
@@ -26,7 +26,7 @@ def detect_sqli(target: dict) -> dict:
     dbms = target.get("dbms_hint")
 
     # Step 1: Run sqlmap with new args
-    raw_output = tool_wrappers.run_sqlmap(
+    raw_output = Tool_Wrappers.run_sqlmap(
         url=url,
         method=method,
         data=data,
@@ -103,7 +103,7 @@ def detect_cmdinj(target: dict, evidence_dir: str) -> dict:
     cookies = target.get("cookies")
 
     # Step 1: Run commix
-    raw_output = tool_wrappers.run_commix(
+    raw_output = Tool_Wrappers.run_commix(
         url=url,
         method=method,
         data=data,
@@ -179,7 +179,7 @@ def detect_nosqli(target: dict, evidence_dir: str) -> dict:
 
     # Step 1: Run nosqli tool
     # FIX: Pass data as JSON string, not flattened
-    raw_output = tool_wrappers.run_nosqli(
+    raw_output = Tool_Wrappers.run_nosqli(
         url=url,
         data=data if method == "POST" else None,
         os_hint=os_hint

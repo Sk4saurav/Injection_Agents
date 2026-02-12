@@ -3,8 +3,9 @@ import subprocess
 import httpx
 import json
 from typing import Optional, Dict
+import os
 
-from config import (
+from Config import (
     SQLMAP_CMD, COMMIX_SCRIPT, NOSQLI_CMD,
     SAFE_MODE, MAX_COMMIX_TIME, MAX_NOSQLI_TIME, REQUEST_TIMEOUT
 )
