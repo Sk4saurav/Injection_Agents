@@ -1,9 +1,19 @@
 import subprocess
 import json
-import os
-from config import SQLMAP_CMD, COMMIX_SCRIPT, NOSQLI_CMD, MAX_COMMIX_TIME, MAX_NOSQLI_TIME
+import shutil
+from config import SQLMAP_CMD, COMMIX_CMD, NOSQLI_CMD, MAX_COMMIX_TIME, MAX_NOSQLI_TIME
 
+
+def tool_exists(tool):
+    return shutil.which(tool) is not None
+
+
+# ================= SQLMAP =================
 def run_sqlmap(url, method="GET", data=None, cookies=None, dbms_hint=None):
+
+    if not tool_exists(SQLMAP_CMD):
+        return "sqlmap not installed on system"
+
     cmd = [SQLMAP_CMD, "-u", url, "--batch", "--random-agent"]
 
     if dbms_hint:
@@ -24,11 +34,13 @@ def run_sqlmap(url, method="GET", data=None, cookies=None, dbms_hint=None):
         return f"sqlmap error: {e}"
 
 
+# ================= COMMIX =================
 def run_commix(url, method="GET", data=None, cookies=None):
-    if not os.path.exists(COMMIX_SCRIPT):
-        return "commix not installed"
 
-    cmd = ["python3", COMMIX_SCRIPT, "--url", url, "--batch", "--random-agent"]
+    if not tool_exists(COMMIX_CMD):
+        return "commix not installed on system"
+
+    cmd = [COMMIX_CMD, "--url", url, "--batch", "--random-agent"]
 
     if method == "POST" and data:
         cmd += ["--data", json.dumps(data)]
@@ -44,11 +56,13 @@ def run_commix(url, method="GET", data=None, cookies=None):
         return f"commix error: {e}"
 
 
+# ================= NOSQL =================
 def run_nosqli(url, data=None):
-    cmd = [NOSQLI_CMD, "scan", "-t", url]
 
-    if data:
-        cmd += ["-d", json.dumps(data)]
+    if not tool_exists(NOSQLI_CMD):
+        return "nosqlmap not installed on system"
+
+    cmd = [NOSQLI_CMD, "--help"]
 
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=MAX_NOSQLI_TIME)
