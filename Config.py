@@ -1,39 +1,25 @@
-# config.py
 import os
+import sys
 from dotenv import load_dotenv
-load_dotenv() 
-import config 
-import Tool_Wrappers
-# --- Hugging Face Settings (Replacing OpenAI) ---
-HF_API_KEY = os.getenv("HF_API_KEY") # <--- Paste your token here
-# You can also specify a specific model if you want
-HF_MODEL_ID = os.getenv("HF_MODEL_ID") # Example: Fast, smart, good for reasoning
-HF_INFERENCE_URL = os.getenv("HF_INFERENCE_URL")
 
-# --- Tool Paths (Unchanged) ---
-SQLMAP_CMD = "sqlmap"
-COMMIX_SCRIPT = "commix/commix.py"
-NOSQLI_CMD = "nosqli"
+load_dotenv()
 
-# --- Scan Behavior (Unchanged) ---
+# ===== LLM =====
+HF_API_KEY = os.getenv("HF_API_KEY")
+HF_MODEL_ID = os.getenv("HF_MODEL_ID", "mistralai/Mistral-7B-Instruct-v0.2")
+
+if not HF_API_KEY:
+    raise ValueError("HF_API_KEY missing in .env")
+
+# ===== TOOLS =====
+SQLMAP_CMD = "/usr/bin/sqlmap"
+COMMIX_SCRIPT = "/usr/share/commix/commix.py"
+NOSQLI_CMD = "/usr/bin/nosqli"
+
+PYTHON_CMD = sys.executable
+
+# ===== BEHAVIOR =====
 SAFE_MODE = True
-MAX_THREADS = 2
 REQUEST_TIMEOUT = 30
 MAX_COMMIX_TIME = 120
 MAX_NOSQLI_TIME = 120
-
-# --- Targets (Unchanged) ---
-TARGETS = [
-    {
-        "name": "SQLi-GET-01-LocalLab",
-        "type": "SQLi",
-        "method": "GET",
-        "url": "http://localhost:8080/listproducts.php?cat=1",
-        "params": {"cat": "1"},
-        "authorized": True,
-        "cookies": {"PHPSESSID": "test_session_id"},
-        "csrf_token": None,
-        "dbms_hint": "MySQL"
-    },
-    # ... your other targets
-]

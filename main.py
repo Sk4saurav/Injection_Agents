@@ -1,155 +1,103 @@
-# main.py
 import json
 import datetime
-import os
-from typing import List, Dict, Any
-
-import config
-import llm_helper
-import Detectors
-import utils
+import detectors
 
 
-def print_legal_warning():
-    """Prints mandatory legal compliance warning."""
-    print("=" * 60)
-    print("⚠️  LEGAL & ETHICAL WARNING ⚠️")
-    print("Scanning systems without explicit authorization is illegal.")
-    print("You must have permission (written/contract) for every target in config.py.")
-    print("Unauthorized scanning violates laws (e.g., CFAA, Computer Misuse Act).")
-    print("=" * 60)
-    print()
+def ask_target():
+    print("\n=== Target Input ===")
+
+    name = input("Target name: ").strip()
+    url = input("Target URL: ").strip()
+
+    method = input("HTTP Method (GET/POST) [GET]: ").strip() or "GET"
+
+    data = None
+    if method.upper() == "POST":
+        raw = input("POST data (key=value&key2=value2) or blank: ").strip()
+        if raw:
+            data = dict(item.split("=") for item in raw.split("&"))
+
+    cookies = input("Cookies (key=value;key2=value2) or blank: ").strip()
+    cookie_dict = None
+    if cookies:
+        cookie_dict = dict(item.split("=") for item in cookies.split(";"))
+
+    return {
+        "name": name,
+        "method": method,
+        "url": url,
+        "data": data,
+        "cookies": cookie_dict,
+        "authorized": True
+    }
 
 
-def run_master_agent():
-    """
-    Main coordinator with security checks enabled.
-    """
-    # 1. Legal Warning
-    print_legal_warning()
+def print_result(title, result):
+    print("\n" + "="*60)
+    print(f"[ RESULT ] {title}")
+    print("="*60)
 
-    # 2. Setup Evidence Directory
-    evidence_dir = "evidence"
-    if not os.path.exists(evidence_dir):
-        try:
-            os.makedirs(evidence_dir)
-        except OSError as e:
-            print(f"[!] Fatal: Could not create evidence directory: {e}")
-            return
-
-    # 3. Load and Validate Targets
-    print(f"=== AI Injection Vulnerability Agent (Safe & Legal Mode) ===")
-    print(f"[*] Loading targets from config...")
-    
-    targets_to_run = []
-    for target in config.TARGETS:
-        # Mandatory Authorization Check
-        if not target.get("authorized", False):
-            print(f"[!] BLOCKED: Target '{target['name']}' is NOT marked as authorized.")
-            print(f"    Edit config.py and set 'authorized': True for this target ONLY if you have permission.")
-            continue # Skip this target
-        
-        targets_to_run.append(target)
-
-    if not targets_to_run:
-        print("\n[!] No authorized targets found. Exiting.")
-        return
-
-    print(f"[+] Authorized targets loaded: {len(targets_to_run)}")
-
-    all_results = []
-
-    # 4. Run Scans
-    for target in targets_to_run:
-        ttype = target.get("type")
-
-        print(f"\n[*] Starting scan for: {target['name']}")
-
-        # Pass evidence_dir to detectors
-        if ttype == "SQLi":
-            result = Detectors.detect_sqli(target)
-            all_results.append(result)
-        elif ttype == "CmdInj":
-            # FIX: Use the merged detect_cmdinj function
-            result = Detectors.detect_cmdinj(target, evidence_dir)
-            all_results.append(result)
-        elif ttype == "NoSQLi":
-            result = Detectors.detect_nosqli(target, evidence_dir)
-            all_results.append(result)
+    if isinstance(result, dict):
+        if "analysis" in result:
+            analysis = result["analysis"]
+            if isinstance(analysis, dict):
+                for k, v in analysis.items():
+                    print(f"{k.upper():15}: {v}")
+            else:
+                print(analysis)
         else:
-            print(f"[!] Unsupported target type: {ttype}")
-
-    # 5. Generate Reports
-    timestamp = datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    
-    # Save Raw Results (JSON)
-    raw_filename = f"scan_raw_{timestamp}.json"
-    with open(raw_filename, "w", encoding="utf-8") as f:
-        json.dump(all_results, f, indent=2, ensure_ascii=False)
-    print(f"\n[+] Raw results saved to {raw_filename}")
-
-    # Ask LLM for summary
-    print("\n[*] Generating executive summary with LLM...")
-    summary = generate_summary_report(all_results)
-
-    summary_filename = f"scan_summary_{timestamp}.json"
-    with open(summary_filename, "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2, ensure_ascii=False)
-    print(f"[+] Executive summary saved to {summary_filename}")
-
-    # Text Summary
-    text_summary_filename = f"scan_summary_{timestamp}.txt"
-    with open(text_summary_filename, "w", encoding="utf-8") as f:
-        f.write(summary.get("summary_text", ""))
-        f.write("\n\nPrioritized Findings:\n")
-        for pf in summary.get("prioritized_findings", []):
-            f.write(f"- [{pf['vuln_type']}] {pf['target_name']}\n")
-            f.write(f"  Impact: {pf['impact']}\n")
-            f.write(f"  Recommendation: {pf['recommendation']}\n\n")
-
-    print(f"[+] Human-readable summary saved to {text_summary_filename}")
-    print("\n=== Scan complete. Please review evidence/ folder for raw logs. ===")
+            print(result)
+    else:
+        print(result)
 
 
-def generate_summary_report(all_results: List[Dict[str, Any]]) -> str:
-    """
-    Ask LLM to produce a high-level summary and prioritized list of findings.
-    """
-    system_prompt = (
-        "You are a senior security consultant writing an executive summary for a penetration test. "
-        "Be concise, professional, and prioritize findings by severity."
-    )
+def run_full_scan(target):
+    print("\n=== AI Multi-Vector Injection Scanner ===")
 
-    user_prompt = f"""Here is the consolidated output from an automated injection vulnerability scanner.
+    final_report = {}
 
-{json.dumps(all_results, indent=2)}
+    # SQLi
+    try:
+        print("\n[1/3] Testing SQL Injection...")
+        sqli = detectors.detect_sqli(target)
+        final_report["SQLi"] = sqli
+        print_result("SQL Injection", sqli)
+    except Exception as e:
+        final_report["SQLi"] = {"error": str(e)}
+        print("SQLi Error:", e)
 
-Please:
-1) Summarize overall security posture (critical/high/medium/low).
-2) List each confirmed vulnerability with:
-   - Target name
-   - Vulnerability type (SQLi / CmdInj / NoSQLi)
-   - Impact
-3) Suggest order of remediation.
-4) Keep your answer practical and suitable for developers and system owners.
+    # CmdInj
+    try:
+        print("\n[2/3] Testing Command Injection...")
+        cmd = detectors.detect_cmdinj(target)
+        final_report["CmdInj"] = cmd
+        print_result("Command Injection", cmd)
+    except Exception as e:
+        final_report["CmdInj"] = {"error": str(e)}
+        print("CmdInj Error:", e)
 
-Return a JSON like:
-{{
-  "overall_risk": "critical/high/medium/low/info",
-  "summary_text": "3-5 sentences",
-  "prioritized_findings": [
-    {{
-      "target_name": "...",
-      "vuln_type": "SQLi/CmdInj/NoSQLi",
-      "impact": "...",
-      "recommendation": "..."
-    }}
-  ]
-}}
-"""
+    # NoSQLi
+    try:
+        print("\n[3/3] Testing NoSQL Injection...")
+        nosql = detectors.detect_nosqli(target)
+        final_report["NoSQLi"] = nosql
+        print_result("NoSQL Injection", nosql)
+    except Exception as e:
+        final_report["NoSQLi"] = {"error": str(e)}
+        print("NoSQLi Error:", e)
 
-    return llm_helper.ask_llm_json(system_prompt, user_prompt)
+    # Save ONE combined report
+    ts = datetime.datetime.now(datetime.UTC).strftime("%Y%m%d_%H%M%S")
+    filename = f"scan_{target['name']}_{ts}.json"
+
+    with open(filename, "w") as f:
+        json.dump(final_report, f, indent=2)
+
+    print("\n" + "="*60)
+    print("SCAN COMPLETE")
+    print("Report saved:", filename)
+    print("="*60)
 
 
 if __name__ == "__main__":
-    run_master_agent()
+    run_full_scan(ask_target())
