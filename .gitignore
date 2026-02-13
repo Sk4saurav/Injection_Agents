@@ -25,3 +25,6 @@ Thumbs.db
 # 5. Project Files (Optional but recommended)
 # Ignore the raw evidence logs to prevent accidentally committing large/buggy files
 evidence/
+venv/
+*.json
+*.txt
