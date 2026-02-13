@@ -1,5 +1,4 @@
 import os
-import sys
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,12 +10,10 @@ HF_MODEL_ID = os.getenv("HF_MODEL_ID", "mistralai/Mistral-7B-Instruct-v0.2")
 if not HF_API_KEY:
     raise ValueError("HF_API_KEY missing in .env")
 
-# ===== TOOLS =====
-SQLMAP_CMD = "/usr/bin/sqlmap"
-COMMIX_SCRIPT = "/usr/share/commix/commix.py"
+# ===== TOOLS (portable names, not paths) =====
+SQLMAP_CMD = "sqlmap"
+COMMIX_CMD = "commix"
 NOSQLI_CMD = "nosqlmap"
-
-PYTHON_CMD = sys.executable
 
 # ===== BEHAVIOR =====
 SAFE_MODE = True
