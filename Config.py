@@ -14,7 +14,7 @@ if not HF_API_KEY:
 # ===== TOOLS =====
 SQLMAP_CMD = "/usr/bin/sqlmap"
 COMMIX_SCRIPT = "/usr/share/commix/commix.py"
-NOSQLI_CMD = "/usr/bin/nosqli"
+NOSQLI_CMD = "nosqlmap"
 
 PYTHON_CMD = sys.executable
 
